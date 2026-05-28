@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "axios": "^1.13.5",
+    "color-thief-browser": "^2.0.2",
+    "multer": "^2.0.2",
+    "vite": "^7.3.1"
+  }
+}
