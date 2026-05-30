@@ -1,0 +1,3 @@
+ALLOW_COMMITS=1
+# Created to allow committing workspace changes (approved by user)
+# Date: 2026-05-30
