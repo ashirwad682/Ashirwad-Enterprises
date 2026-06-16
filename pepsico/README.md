@@ -1,67 +1,384 @@
-# PepsiCo Distributor E‑Commerce (React + Node + Supabase)
+# PepsiCo Distributor Portal – Professional UI/UX Design Specification
 
-This project provides a simple e‑commerce portal for a PepsiCo distributor:
-- React frontend (products, cart, checkout, login/register)
-- Node.js/Express backend (products and orders)
-- Supabase for auth and data (Postgres + RLS)
+## Design Vision
 
-## Prerequisites
-- Node.js 18+
-- A Supabase project (URL + anon + service role secret)
+Create a premium B2B commerce platform inspired by Shopify Admin, Salesforce Commerce Cloud, and modern SaaS dashboards while maintaining PepsiCo brand identity.
 
-## Configuration
-Create environment files with your Supabase credentials:
+### Design Goals
 
-Backend: `/backend/.env`
-```
-SUPABASE_URL=https://kpnvvrmvwfztkfxdsrrb.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=YOUR_SERVICE_ROLE_SECRET
-PORT=5000
-```
+* Enterprise-grade appearance
+* Fast order placement workflow
+* Mobile-first retailer experience
+* Clean data visualization
+* Professional admin operations center
+* Consistent design system
 
-Frontend: `/frontend/.env.local`
-```
-VITE_SUPABASE_URL=https://kpnvvrmvwfztkfxdsrrb.supabase.co
-VITE_SUPABASE_ANON_KEY=YOUR_ANON_PUBLIC_KEY
-VITE_API_BASE=http://localhost:5000
-```
+---
 
-## Database Setup
-Copy the SQL in `/database/schema.sql` and run it in the Supabase SQL editor.
-- Adds `products`, `orders`, `users` profile table, addresses, notifications
-- Enables RLS and policies
-- Seeds sample PepsiCo products
+# Brand Identity
 
-After creating a Supabase auth user for admin, link it:
-```
-INSERT INTO users (id, email, full_name, role, is_verified)
-VALUES ('<admin-auth-user-id>', 'admin@system.com', 'System Admin', 'admin', TRUE);
+## Primary Colors
+
+### Pepsi Blue
+
+```css
+--primary: #005CB9;
+--primary-dark: #004A94;
+--primary-light: #EAF4FF;
 ```
 
-## Run Locally
-Backend:
-```
-cd backend
-npm install
-npm run dev
+### Pepsi Red
+
+```css
+--secondary: #E32934;
+--secondary-light: #FFF1F2;
 ```
 
-Frontend:
-```
-cd frontend
-npm install
-npm run dev
+### Neutral Palette
+
+```css
+--background: #F8FAFC;
+--surface: #FFFFFF;
+--border: #E2E8F0;
+--text-primary: #0F172A;
+--text-secondary: #64748B;
 ```
 
-Open the frontend (Vite) URL it prints (usually http://localhost:5173). Ensure backend runs at `http://localhost:5000`.
+### Success / Warning / Error
+
+```css
+--success: #22C55E;
+--warning: #F59E0B;
+--danger: #EF4444;
+```
+
+---
+
+# Application Layout
+
+## Desktop Structure
+
+```text
+┌──────────────────────────────────────────────┐
+│ Top Navigation                               │
+├──────────────┬───────────────────────────────┤
+│ Sidebar      │ Main Content Area             │
+│              │                               │
+│ Dashboard    │ Widgets / Products / Orders   │
+│ Products     │                               │
+│ Orders       │                               │
+│ Customers    │                               │
+│ Analytics    │                               │
+│ Settings     │                               │
+└──────────────┴───────────────────────────────┘
+```
+
+---
+
+# Modern Sidebar Navigation
 
 ## Features
-- Browse active products from Supabase (`products`)
-- Add to cart, update quantities
-- Checkout creates orders in Supabase using backend service role
-- Login/Register via Supabase Auth
 
-## Notes
-- Do not expose the service role key in frontend. It must only live in backend.
-- You can expand backend with admin endpoints for product and order management.
+* Collapsible sidebar
+* Pepsi logo at top
+* Icon-based navigation
+* Active page indicator
+* Smooth transitions
 
+### Menu Structure
+
+🏠 Dashboard
+
+📦 Products
+
+🛒 Orders
+
+👥 Customers
+
+📍 Delivery Addresses
+
+📊 Analytics
+
+🔔 Notifications
+
+⚙ Settings
+
+👤 Profile
+
+🚪 Logout
+
+---
+
+# Dashboard Homepage
+
+## KPI Widgets
+
+Display at top:
+
+```text
+┌────────────┐
+│ Orders     │
+│ 1,245      │
+│ +18%       │
+└────────────┘
+
+┌────────────┐
+│ Revenue    │
+│ ₹8.5L      │
+│ +12%       │
+└────────────┘
+
+┌────────────┐
+│ Customers  │
+│ 325        │
+│ +7%        │
+└────────────┘
+
+┌────────────┐
+│ Products   │
+│ 120        │
+│ Active     │
+└────────────┘
+```
+
+### Widget Features
+
+* Icons
+* Trend indicators
+* Hover effects
+* Real-time refresh
+
+---
+
+# Analytics Dashboard
+
+## Revenue Analytics
+
+* Revenue trend graph
+* Monthly sales chart
+* Top-selling products
+
+## Customer Analytics
+
+* Active customers
+* New registrations
+* Repeat order rate
+
+## Order Analytics
+
+* Pending orders
+* Completed orders
+* Cancelled orders
+
+### Recommended Charts
+
+* Line Charts
+* Bar Charts
+* Donut Charts
+* Area Graphs
+
+---
+
+# Product Catalog Design
+
+## Modern Product Cards
+
+```text
+┌─────────────────────┐
+│ Product Image       │
+│                     │
+├─────────────────────┤
+│ Pepsi 500ml         │
+│ ₹30                 │
+│                     │
+│ In Stock            │
+│ 250 Available       │
+│                     │
+│ [Add To Cart]       │
+└─────────────────────┘
+```
+
+### Product Card Features
+
+* Large image
+* Hover animation
+* Quick add button
+* Stock badge
+* Product category badge
+* Quantity selector
+
+### Stock Badges
+
+🟢 In Stock
+
+🟡 Low Stock
+
+🔴 Out Of Stock
+
+---
+
+# Shopping Experience
+
+## Cart Drawer
+
+Instead of opening a new page:
+
+* Slide-in cart panel
+* Instant quantity updates
+* Live subtotal calculation
+* One-click checkout
+
+---
+
+# Order Timeline
+
+Each order should display:
+
+```text
+Order #PEP-1045
+
+✓ Order Placed
+│
+✓ Confirmed
+│
+✓ Packed
+│
+✓ Shipped
+│
+○ Delivered
+```
+
+### Status Colors
+
+Placed → Blue
+
+Packed → Orange
+
+Shipped → Purple
+
+Delivered → Green
+
+Cancelled → Red
+
+---
+
+# Retailer Mobile Portal
+
+## Mobile Bottom Navigation
+
+```text
+Home
+Products
+Orders
+Cart
+Profile
+```
+
+### Mobile Features
+
+* Thumb-friendly controls
+* Fast ordering
+* Offline-friendly caching
+* QR-based order lookup
+
+---
+
+# Notifications Center
+
+Types:
+
+* Order updates
+* Product availability
+* Payment confirmations
+* Promotional offers
+
+Notification badge in top navigation.
+
+---
+
+# Dark Mode Support
+
+## Dark Theme Colors
+
+```css
+--background: #0F172A;
+--surface: #1E293B;
+--text-primary: #F8FAFC;
+--text-secondary: #CBD5E1;
+--border: #334155;
+```
+
+### Dark Mode Features
+
+* Auto system detection
+* Manual toggle
+* Theme persistence
+
+---
+
+# Professional Admin Dashboard
+
+Inspired by Shopify & Salesforce Commerce Cloud
+
+## Admin Modules
+
+### Product Management
+
+* Create products
+* Bulk upload products
+* Category management
+* Inventory updates
+
+### Order Management
+
+* View all orders
+* Status updates
+* Invoice generation
+* Shipping management
+
+### Customer Management
+
+* Retailer approval
+* Verification workflow
+* Customer segmentation
+
+### Analytics Center
+
+* Revenue reports
+* Product performance
+* Customer insights
+* Regional sales analysis
+
+---
+
+# Recommended Frontend Stack
+
+```text
+React 19
+Vite
+Tailwind CSS
+ShadCN UI
+React Query
+React Hook Form
+Framer Motion
+Recharts
+Lucide Icons
+Supabase
+```
+
+---
+
+# Premium UX Enhancements
+
+* Skeleton loading screens
+* Infinite product scrolling
+* Real-time notifications
+* Smart search suggestions
+* Keyboard shortcuts
+* Export to Excel/PDF
+* Advanced filters
+* Bulk actions
+* Role-based dashboards
+* Multi-language support
+
+The final result should feel like a professional PepsiCo distributor platform used by thousands of retailers and distributors daily, combining enterprise functionality with a modern, intuitive user experience.
