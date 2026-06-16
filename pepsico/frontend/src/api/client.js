@@ -278,3 +278,16 @@ export async function createRazorpayOrder(amount) {
   if (!res.ok) throw new Error('Failed to create Razorpay order')
   return res.json()
 }
+
+export async function verifyAndCreateOrder(paymentResponse, orderPayload) {
+  const res = await fetch(apiUrl('/api/payments/verify-and-create-order'), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ paymentResponse, orderPayload })
+  })
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}))
+    throw new Error(body.error || 'Failed to verify payment and create order')
+  }
+  return res.json()
+}

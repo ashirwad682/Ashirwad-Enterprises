@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react'
+import React, { useMemo, useState, useEffect, useRef, useCallback } from 'react'
 import { useCart } from '../context/CartContext'
 import { createOrder, upsertAddress, validateCoupon, fetchPincode, getPaymentConfig, createRazorpayOrder, fetchOffers, fetchProductSlabs } from '../api/client'
 import { supabase } from '../lib/supabaseClient'
@@ -67,6 +67,43 @@ function formatPickupAvailabilityLabel(pickupWindow) {
   return `${dateLabel}, ${startTime} - ${endTime}`
 }
 
+function normalizeOfferForCheckout(offer) {
+  if (!offer) return null
+  return {
+    ...offer,
+    id: offer.id || offer.offer_id || null,
+    title: offer.title || offer.name || null,
+    message: offer.message || offer.description || null,
+    productId: offer.productId || offer.product_id || null,
+    discountType: String(offer.discountType || offer.discount_type || '').trim().toLowerCase(),
+    discountValue: Number(offer.discountValue ?? offer.discount_value ?? 0) || 0,
+    minimumAmount: Number(offer.minimumAmount ?? offer.minimum_amount ?? 0) || 0
+  }
+}
+
+function calculateOfferSavings(offer, items, subtotal) {
+  const normalized = normalizeOfferForCheckout(offer)
+  if (!normalized || subtotal <= 0) return 0
+  if (subtotal < normalized.minimumAmount) return 0
+
+  const eligibleItems = normalized.productId
+    ? items.filter(({ product }) => String(product?.id || '') === String(normalized.productId))
+    : items
+
+  if (!eligibleItems.length) return 0
+
+  const eligibleTotal = eligibleItems.reduce((sum, { product, qty }) => sum + (Number(product?.price || 0) * Number(qty || 0)), 0)
+  let discountValue = 0
+
+  if (normalized.discountType === 'percent' || normalized.discountType === 'percentage') {
+    discountValue = eligibleTotal * (normalized.discountValue / 100)
+  } else {
+    discountValue = normalized.discountValue * eligibleItems.reduce((sum, { qty }) => sum + Number(qty || 0), 0)
+  }
+
+  return Math.min(subtotal, Math.max(0, discountValue))
+}
+
 export default function Checkout() {
   const accentFont = "'Space Grotesk', 'Sora', 'Inter', system-ui, -apple-system, sans-serif"
   const { state, dispatch } = useCart()
@@ -83,14 +120,26 @@ export default function Checkout() {
   const [offers, setOffers] = useState([])
   const [autoOffer, setAutoOffer] = useState(null)
   const [autoDiscount, setAutoDiscount] = useState(0)
+  const [autoOfferEnabled, setAutoOfferEnabled] = useState(true)
   const [couponDiscount, setCouponDiscount] = useState(0)
   const [couponDetails, setCouponDetails] = useState(null)
   const [couponFeedback, setCouponFeedback] = useState(null)
   const [applying, setApplying] = useState(false)
+  const [pincodeInsight, setPincodeInsight] = useState(null)
+  const [pincodeLoading, setPincodeLoading] = useState(false)
   const [paying, setPaying] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState('razorpay')
+  const [paymentConfig, setPaymentConfig] = useState(null)
+  const [paymentConfigLoading, setPaymentConfigLoading] = useState(false)
+  const [paymentConfigError, setPaymentConfigError] = useState(null)
+  const [lastPaymentError, setLastPaymentError] = useState(null)
+  const paymentTimerRef = React.useRef(null)
+  const [codAcknowledged, setCodAcknowledged] = useState(false)
   const [shippingMethod, setShippingMethod] = useState('express') // 'standard', 'express', or 'pickup_drive'
   const [productSlabsById, setProductSlabsById] = useState({})
+  const summaryScrollRef = useRef(null)
+  const [summaryScrollProgress, setSummaryScrollProgress] = useState(0)
+  const [offerLoadError, setOfferLoadError] = useState(null)
 
   const items = useMemo(() => Object.values(state.items), [state.items])
   const productIds = useMemo(() => {
@@ -164,47 +213,62 @@ export default function Checkout() {
     }, 0);
   }, [resolvedItems]);
 
-  // Offer discount: only for qualifying product(s), supports auto-applied and manual offers
+
+  // Manual offer discount: computed only for `state.offer` (user-applied)
   const offerDiscount = useMemo(() => {
-    // Prefer auto-applied offer if present
-    const offer = autoOffer || state.offer;
-    if (!offer) return 0;
+    const offer = state.offer
+    if (!offer) return 0
+
+    // normalize fields (support both snake_case and camelCase)
+    const normalizedOffer = normalizeOfferForCheckout(offer)
+    const offerId = normalizedOffer.id
+    const offerProductId = normalizedOffer.productId
+    const discountType = normalizedOffer.discountType
+    const discountValue = normalizedOffer.discountValue
+
     return resolvedItems.reduce((sum, item) => {
-      const price = Number(item.product.price);
-      const qty = item.qty;
-      let discount = 0;
-      // Offer applies only to eligible product(s)
-      if (
-        offer.id &&
-        item.product.offer_id &&
-        String(item.product.offer_id) === String(offer.id)
-      ) {
+      const price = Number(item.product.price)
+      const qty = item.qty
+      let discount = 0
+
+      const itemProductId = String(item.product?.id || '')
+      const itemOfferId = String(item.product?.offer_id || '')
+      const isEligible = offerProductId
+        ? itemProductId === String(offerProductId)
+        : (offerId && itemOfferId === String(offerId))
+
+      if (isEligible) {
         // Apply offer discount on price AFTER slab discount (if any)
-        let effectivePrice = price;
+        let effectivePrice = price
         if (item.slab && qty >= item.slab.min_quantity) {
           if (item.slab.discount_type === 'percent') {
-            effectivePrice = price * (1 - Number(item.slab.discount_value) / 100);
+            effectivePrice = price * (1 - Number(item.slab.discount_value) / 100)
           } else {
-            effectivePrice = price - Number(item.slab.discount_value);
+            effectivePrice = price - Number(item.slab.discount_value)
           }
         }
-        if (offer.discount_type === 'percent') {
-          discount = effectivePrice * qty * (Number(offer.discount_value) / 100);
+
+        if (discountType === 'percent' || discountType === 'percentage') {
+          discount = effectivePrice * qty * (discountValue / 100)
         } else {
-          discount = Number(offer.discount_value) * qty;
+          discount = discountValue * qty
         }
       }
-      // Prevent negative discounts
-      if (discount < 0) discount = 0;
-      return sum + discount;
-    }, 0);
-  }, [resolvedItems, autoOffer, state.offer]);
+
+      if (discount < 0) discount = 0
+      return sum + discount
+    }, 0)
+  }, [resolvedItems, state.offer])
 
   // Keep offer discount source consistent between display and billing totals.
-  const appliedOfferDiscount = useMemo(
-    () => Math.max(Number(autoDiscount) || 0, Number(offerDiscount) || 0),
-    [autoDiscount, offerDiscount]
-  )
+  // Applied offer discount: if auto-offer enabled and available prefer auto, otherwise manual
+  const appliedOfferDiscount = useMemo(() => {
+    const auto = autoOffer ? Number(autoDiscount) || 0 : 0
+    const manual = Number(offerDiscount) || 0
+    if (auto > 0) return auto
+    if (manual > 0) return manual
+    return 0
+  }, [autoOffer, autoDiscount, offerDiscount])
 
   // Total discount: slab + offer + coupon
   const totalDiscount = useMemo(
@@ -259,9 +323,97 @@ export default function Checkout() {
   const cartIsEmpty = items.length === 0
   const detailGridColumns = isMobile ? '1fr' : '120px 1fr'
 
+  // Estimated delivery label to give quick expectation to user
+  const estimatedDeliveryLabel = useMemo(() => {
+    if (shippingMethod === 'pickup_drive') return 'Pickup after admin approval'
+    const now = new Date()
+    const d = new Date(now)
+    if (shippingMethod === 'express') {
+      // same day if before 12, else next day
+      if (now.getHours() < 12) d.setDate(d.getDate())
+      else d.setDate(d.getDate() + 1)
+    } else {
+      // standard: 3-5 business days -> show +4 days estimate
+      d.setDate(d.getDate() + 4)
+    }
+    return d.toLocaleDateString('en-IN', { weekday: 'short', month: 'short', day: 'numeric' })
+  }, [shippingMethod])
+
+  
+
   useEffect(() => {
     loadSavedAddress()
   }, [])
+
+  useEffect(() => {
+    let cancelled = false
+    async function loadCfg() {
+      try {
+        setPaymentConfigLoading(true)
+        const cfg = await getPaymentConfig()
+        if (!cancelled) {
+          setPaymentConfig(cfg || null)
+          setPaymentConfigError(!cfg?.key_id ? 'Payment not configured' : null)
+        }
+      } catch (e) {
+        if (!cancelled) setPaymentConfigError(e.message || 'Failed to load payment config')
+      } finally {
+        if (!cancelled) setPaymentConfigLoading(false)
+      }
+    }
+    loadCfg()
+    return () => { cancelled = true }
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function loadPincodeInsight() {
+      const pin = String(addr?.pincode || '').trim()
+      if (isPickupOrder || shippingMethod !== 'express' || pin.length !== 6) {
+        setPincodeInsight(null)
+        setPincodeLoading(false)
+        return
+      }
+
+      setPincodeLoading(true)
+      try {
+        const data = await fetchPincode(pin)
+        if (!cancelled) {
+          const district = String(data?.district || addr?.district || '').trim()
+          const state = String(data?.state || addr?.state || '').trim()
+          const patnaBiharMatch = /patna/i.test(district) && /bihar/i.test(state)
+          setPincodeInsight({
+            pincode: data?.pincode || pin,
+            district: district || null,
+            state: state || null,
+            country: data?.country || 'India',
+            serviceable: patnaBiharMatch,
+            message: patnaBiharMatch ? 'Deliverable in Patna, Bihar' : 'Express delivery is only available in Patna, Bihar.'
+          })
+        }
+      } catch (e) {
+        if (!cancelled) {
+          setPincodeInsight({
+            pincode: pin,
+            district: addr?.district || null,
+            state: addr?.state || null,
+            country: 'India',
+            serviceable: false,
+            message: e.message || 'Express delivery is only available in Patna, Bihar.'
+          })
+        }
+      } finally {
+        if (!cancelled) setPincodeLoading(false)
+      }
+    }
+
+    loadPincodeInsight()
+
+    return () => {
+      cancelled = true
+    }
+  }, [addr?.pincode, addr?.district, addr?.state, isPickupOrder, shippingMethod])
 
   useEffect(() => {
     loadOffers()
@@ -321,14 +473,31 @@ export default function Checkout() {
 
   async function loadOffers() {
     try {
-      // Get user ID to filter out already-used offers
-      const { data: { user } } = await supabase.auth.getUser()
-      const userId = user?.id || null
-      
-      const data = await fetchOffers(userId)
+      // Get user ID to filter out already-used offers; fallback to public offers if auth lookup fails
+      let userId = null
+      try {
+        const authResult = await supabase.auth.getUser()
+        userId = authResult?.data?.user?.id || null
+      } catch (authErr) {
+        console.warn('[checkout] auth lookup failed while loading offers, falling back to public offers', authErr?.message || authErr)
+      }
+
+      let data = []
+      try {
+        data = await fetchOffers(userId)
+      } catch (fetchErr) {
+        if (userId) {
+          console.warn('[checkout] user-filtered offers fetch failed, retrying public offers', fetchErr?.message || fetchErr)
+          data = await fetchOffers()
+        } else {
+          throw fetchErr
+        }
+      }
       setOffers(Array.isArray(data) ? data : [])
+      setOfferLoadError(null)
     } catch (err) {
       console.warn('Failed to load offers:', err)
+      setOfferLoadError(err?.message || 'Failed to load offers')
     }
   }
 
@@ -344,28 +513,7 @@ export default function Checkout() {
 
     for (const offer of offers) {
       if (!offer) continue
-      const minAmount = Number(offer.minimumAmount || 0)
-      if (subtotal < minAmount) continue
-
-      // If offer is for a specific product, calculate discount only on that product's amount
-      let discountValue = 0;
-      if (offer.productId) {
-        const eligibleItems = items.filter(({ product }) => String(product.id) === String(offer.productId));
-        if (!eligibleItems.length) continue;
-        const eligibleTotal = eligibleItems.reduce((sum, { product, qty }) => sum + (Number(product.price) * qty), 0);
-        if (offer.discountType === 'percent') {
-          discountValue = eligibleTotal * Number(offer.discountValue || 0) / 100;
-        } else {
-          discountValue = Number(offer.discountValue || 0) * eligibleItems.reduce((sum, { qty }) => sum + qty, 0);
-        }
-      } else {
-        // If offer is on subtotal (no productId), fallback to old logic
-        discountValue = offer.discountType === 'percent'
-          ? (subtotal * Number(offer.discountValue || 0)) / 100
-          : Number(offer.discountValue || 0)
-      }
-
-      const savings = Math.min(subtotal, Math.max(0, discountValue))
+      const savings = calculateOfferSavings(offer, items, subtotal)
       if (savings > bestSavings) {
         bestSavings = savings
         bestOffer = offer
@@ -375,9 +523,11 @@ export default function Checkout() {
     if (bestOffer) {
       setAutoOffer(bestOffer)
       setAutoDiscount(Number(bestSavings.toFixed(2)))
+      console.debug('[checkout] auto offer selected', normalizeOfferForCheckout(bestOffer), { savings: bestSavings, subtotal, items: items.length, offersCount: offers.length })
     } else {
       setAutoOffer(null)
       setAutoDiscount(0)
+      console.debug('[checkout] no auto offer selected', { offersCount: offers.length, subtotal, itemsCount: items.length, offers: offers.map(normalizeOfferForCheckout) })
     }
   }, [offers, items, subtotal])
 
@@ -481,6 +631,7 @@ export default function Checkout() {
     setPaying(true)
     setError(null)
     setStatus(paymentMethod === 'cod' ? 'Placing order...' : 'Initializing payment...')
+    setLastPaymentError(null)
 
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
@@ -512,11 +663,19 @@ export default function Checkout() {
       if (paymentMethod === 'cod') {
         // Create single order with all items (using saved address)
         try {
+          if (!codAcknowledged) {
+            setError('You must acknowledge COD terms before placing a Cash on Delivery order.')
+            setStatus(null)
+            setPaying(false)
+            return
+          }
           const res = await createOrder({ 
             user_id: user.id, 
             items: orderItemsPayload,
             total_amount: totalPayable,
             payment_method: 'COD',
+            cod_acknowledged: true,
+            cod_block_on_fail: true,
             ...(coupon && { coupon_code: coupon }),
             ...(autoOffer?.id && { offer_id: autoOffer.id }),
             subtotal,
@@ -573,14 +732,16 @@ export default function Checkout() {
       const loaded = await loadRazorpay()
       if (!loaded) throw new Error('Failed to load Razorpay. Check your connection and try again.')
 
-      const cfg = await getPaymentConfig()
-      if (!cfg.key_id) throw new Error('Payment is not configured. Ask admin to set Razorpay keys.')
+      // Ensure payment config exists and has key
+      if (!paymentConfig || !paymentConfig.key_id) {
+        throw new Error(paymentConfigError || 'Payment is not configured. Ask admin to set Razorpay keys.')
+      }
 
       const order = await createRazorpayOrder(totalPayable)
       setStatus('Waiting for payment...')
 
       const options = {
-        key: cfg.key_id,
+        key: paymentConfig.key_id,
         amount: order.amount,
         currency: order.currency,
         order_id: order.id,
@@ -588,9 +749,11 @@ export default function Checkout() {
         description: 'Order payment',
         handler: async function (response) {
           try {
-            // Create single order with all items (using saved address)
-            const res = await createOrder({ 
-              user_id: user.id, 
+            // clear any timeout
+            if (paymentTimerRef.current) { clearTimeout(paymentTimerRef.current); paymentTimerRef.current = null }
+            // Verify payment signature on server and create order there
+            const serverPayload = {
+              user_id: user.id,
               items: orderItemsPayload,
               total_amount: totalPayable,
               payment_method: 'prepaid',
@@ -604,7 +767,10 @@ export default function Checkout() {
               shipping_fee: shippingFee,
               gst_amount: gstAmount,
               shipping_method: shippingMethod
-            })
+            }
+
+            const verifyRes = await verifyAndCreateOrder(response, serverPayload)
+            const res = verifyRes
             dispatch({ type: 'clear' })
             setStatus('Payment successful. Order placed!')
             setPaying(false)
@@ -651,10 +817,24 @@ export default function Checkout() {
 
       const rzp = new window.Razorpay(options)
       rzp.on('payment.failed', function (resp) {
-        setError(resp?.error?.description || 'Payment failed. Please try again.')
+        const msg = resp?.error?.description || 'Payment failed. Please try again.'
+        setError(msg)
+        setLastPaymentError(msg)
         setPaying(false)
         setStatus(null)
+        if (paymentTimerRef.current) { clearTimeout(paymentTimerRef.current); paymentTimerRef.current = null }
       })
+
+      // Start a manual timeout for the payment popup (3 minutes)
+      paymentTimerRef.current = setTimeout(() => {
+        setError('Payment timed out. Please try again.')
+        setLastPaymentError('Payment timed out')
+        setPaying(false)
+        setStatus(null)
+        try { rzp.close() } catch (e) {}
+        paymentTimerRef.current = null
+      }, 3 * 60 * 1000)
+
       rzp.open()
     } catch (e) {
       if (e.message === 'COUPON_ALREADY_USED') {
@@ -831,6 +1011,29 @@ export default function Checkout() {
                         <span>📍</span>
                         <span>{addr?.address_line}, {addr?.district}, {addr?.state}, {addr?.pincode}</span>
                       </div>
+                      {!isPickupOrder && (
+                        <div style={{ marginTop: 10, padding: '10px 12px', borderRadius: 10, border: '1px solid #e5e7eb', background: '#fff' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center' }}>
+                            <div>
+                              <div style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 2 }}>Serviceability Check</div>
+                              <div style={{ fontSize: 12, color: '#64748b' }}>
+                                {shippingMethod !== 'express'
+                                  ? 'Serviceability check applies only to Express delivery.'
+                                  : pincodeLoading
+                                    ? 'Checking delivery availability for this pincode...'
+                                    : pincodeInsight?.serviceable
+                                      ? 'Deliverable in Patna, Bihar'
+                                      : pincodeInsight
+                                        ? pincodeInsight.message || 'Express delivery is only available in Patna, Bihar.'
+                                        : 'No serviceability check yet.'}
+                              </div>
+                            </div>
+                            <span style={{ padding: '5px 9px', borderRadius: 999, fontSize: 11, fontWeight: 700, background: pincodeInsight?.serviceable ? '#dcfce7' : '#fef3c7', color: pincodeInsight?.serviceable ? '#166534' : '#92400e' }}>
+                              {shippingMethod !== 'express' ? 'Express only' : pincodeLoading ? 'Checking' : pincodeInsight?.serviceable ? 'Live' : 'Preview'}
+                            </span>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -913,6 +1116,7 @@ export default function Checkout() {
                       <span style={{ padding: '2px 8px', background: '#fef3c7', color: '#92400e', fontSize: 10, fontWeight: 700, borderRadius: 4, textTransform: 'uppercase', letterSpacing: 0.5 }}>Fast</span>
                     </div>
                     <div style={{ fontSize: 13, color: shippingMethod === 'express' ? '#3b82f6' : '#64748b', fontWeight: 500 }}>Same-day delivery if ordered before 12 PM</div>
+                    <div style={{ fontSize: 12, color: '#64748b', marginTop: 4 }}>Serviceability check enabled for Patna, Bihar only</div>
                   </div>
                   <div style={{ fontSize: 16, fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: 4 }}>
                     <span>₹500</span>
@@ -1035,13 +1239,57 @@ export default function Checkout() {
                     <span style={{ fontSize: 24 }}>💵</span>
                   </div>
                 </button>
+                {paymentMethod === 'cod' && (
+                  <div style={{ marginTop: 8, fontSize: 13, color: '#92400e', display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                    <input id="cod_ack" type="checkbox" checked={codAcknowledged} onChange={(e) => setCodAcknowledged(e.target.checked)} />
+                    <label htmlFor="cod_ack" style={{ lineHeight: '1.2' }}>
+                      I acknowledge that if I fail to pay at delivery time, my account will be blocked and I will not be able to create a new account again.
+                    </label>
+                  </div>
+                )}
               </div>
             </motion.div>
           </div>
 
           {/* Right Column: Order Summary */}
-          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.15 }} style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 16, padding: isMobile ? 18 : 24, position: isTablet ? 'static' : 'sticky', top: 24, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-            <h2 style={{ margin: '0 0 20px', fontSize: 17, fontWeight: 700, color: '#0f172a' }}>Order Summary</h2>
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.15 }} style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 16, padding: isMobile ? 12 : 20, position: isTablet ? 'static' : 'sticky', top: 24, boxShadow: '0 1px 3px rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+              <h2 style={{ margin: 0, fontSize: isMobile ? 16 : 17, fontWeight: 700, color: '#0f172a' }}>Order Summary</h2>
+              <div style={{ fontSize: 12, color: '#6b7280' }}>Est. Delivery: <strong style={{ color: '#0f172a' }}>{estimatedDeliveryLabel}</strong></div>
+            </div>
+
+            {/* Scrollable content: products, pricing, offers */}
+            <style>{`
+              .copilot-order-summary-scroll::-webkit-scrollbar { width: 10px; }
+              .copilot-order-summary-scroll::-webkit-scrollbar-track { background: transparent; }
+              .copilot-order-summary-scroll::-webkit-scrollbar-thumb { background-color: rgba(15,23,42,0.12); border-radius: 8px; border: 2px solid transparent; background-clip: padding-box; }
+              .copilot-order-summary-scroll { -webkit-overflow-scrolling: touch; scroll-behavior: smooth; }
+              .copilot-scroll-fade { position: absolute; left: 0; right: 0; height: 28px; pointer-events: none }
+              .copilot-scroll-top-fade { top: 0; background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0)); }
+              .copilot-scroll-bottom-fade { bottom: 0; background: linear-gradient(0deg, rgba(255,255,255,0.95), rgba(255,255,255,0)); }
+            `}</style>
+            <div style={{ position: 'relative' }}>
+              <div ref={summaryScrollRef} className="copilot-order-summary-scroll" onScroll={() => {
+                const el = summaryScrollRef
+                if (!el || !el.current) return
+                const s = el.current
+                const max = s.scrollHeight - s.clientHeight
+                const pct = max > 0 ? Math.round((s.scrollTop / max) * 100) : 0
+                setSummaryScrollProgress(pct)
+              }} style={{ overflowY: 'auto', paddingRight: 12, maxHeight: isMobile ? '38vh' : isTablet ? '56vh' : '68vh' }}>
+            {autoOffer && (
+              <div style={{ marginBottom: 10, padding: '10px 12px', borderRadius: 10, border: '1px solid #bbf7d0', background: '#f0fdf4', display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#166534', textTransform: 'uppercase', letterSpacing: 0.5 }}>Automatic offer applied</div>
+                <div style={{ fontSize: 13, color: '#14532d' }}>
+                  <strong>{autoOffer.title || autoOffer.message || 'Best Offer'}</strong> • Savings ₹{Number(autoDiscount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </div>
+              </div>
+            )}
+            {offerLoadError && !autoOffer && (
+              <div style={{ marginBottom: 10, padding: '10px 12px', borderRadius: 10, border: '1px solid #fecaca', background: '#fef2f2', color: '#991b1b', fontSize: 12 }}>
+                Offer loading issue: {offerLoadError}
+              </div>
+            )}
 
             {/* Product List */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 20 }}>
@@ -1076,6 +1324,9 @@ export default function Checkout() {
                         <div style={{ fontSize: 14, fontWeight: 600, color: '#0f172a' }}>{product.name}</div>
                       </div>
                       <div style={{ fontSize: 12, color: '#64748b', marginLeft: 28 }}>Qty: {qty}</div>
+                      {typeof product.stock === 'number' && qty > product.stock && (
+                        <div style={{ marginLeft: 28, marginTop: 6, fontSize: 12, color: '#991b1b' }}>Only {product.stock} left in stock — please reduce quantity</div>
+                      )}
                       {slabInfo}
                     </div>
                     <div style={{ fontSize: 14 }}>{priceDisplay}</div>
@@ -1198,6 +1449,22 @@ export default function Checkout() {
                 <span>Total Payable</span>
                 <span style={{ fontSize: 18, color: '#3b82f6' }}>₹{totalPayable.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
               </div>
+            </div>
+
+              </div>
+
+              <div className="copilot-scroll-fade copilot-scroll-top-fade" aria-hidden />
+              <div className="copilot-scroll-fade copilot-scroll-bottom-fade" aria-hidden />
+
+              <div style={{ marginTop: 8 }}>
+                <div style={{ height: 6, background: '#e6eef9', borderRadius: 6, overflow: 'hidden' }}>
+                  <div style={{ width: `${summaryScrollProgress}%`, height: 6, background: '#3b82f6', transition: 'width 160ms linear' }} />
+                </div>
+                {summaryScrollProgress > 5 && (
+                  <button onClick={() => { if (summaryScrollRef?.current) summaryScrollRef.current.scrollTo({ top: 0, behavior: 'smooth' }) }} style={{ marginTop: 8, padding: '6px 10px', fontSize: 12, borderRadius: 8, border: '1px solid #e5e7eb', background: '#fff', cursor: 'pointer' }}>Scroll to top</button>
+                )}
+              </div>
+
             </div>
 
             {/* Place Order Button */}

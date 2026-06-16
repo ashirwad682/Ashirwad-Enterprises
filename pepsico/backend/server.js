@@ -534,6 +534,61 @@ function isAuthUserNotFoundError(err) {
   return code.includes('user_not_found') || message.includes('user not found')
 }
 
+// Verify Razorpay payment signature and create order server-side
+app.post('/api/payments/verify-and-create-order', async (req, res) => {
+  try {
+    const { paymentResponse, orderPayload } = req.body || {}
+    if (!paymentResponse || !orderPayload) return res.status(400).json({ error: 'paymentResponse and orderPayload are required' })
+
+    const { razorpay_payment_id, razorpay_order_id, razorpay_signature } = paymentResponse || {}
+    if (!razorpay_payment_id || !razorpay_order_id || !razorpay_signature) {
+      return res.status(400).json({ error: 'Incomplete payment response from Razorpay' })
+    }
+
+    if (!RAZORPAY_KEY_SECRET) return res.status(500).json({ error: 'Payment gateway not configured on server' })
+
+    // Verify signature
+    const expected = createHash('sha256').update(`${razorpay_order_id}|${razorpay_payment_id}`).digest('hex')
+    // Razorpay signature is HMAC_SHA256 using key_secret — compute HMAC
+    const hmac = createHash('sha256')
+    // Use crypto.createHmac for HMAC
+    const { createHmac } = await import('crypto')
+    const computed = createHmac('sha256', RAZORPAY_KEY_SECRET).update(`${razorpay_order_id}|${razorpay_payment_id}`).digest('hex')
+    if (computed !== String(razorpay_signature)) {
+      return res.status(400).json({ error: 'Invalid payment signature' })
+    }
+
+    // Attach payment info to order payload
+    const payloadWithPayment = {
+      ...orderPayload,
+      payment_info: {
+        provider: 'razorpay',
+        razorpay_payment_id,
+        razorpay_order_id,
+        razorpay_signature
+      },
+      payment_method: 'prepaid'
+    }
+
+    // Forward to existing orders endpoint to reuse validation and insertion logic
+    const fetchRes = await fetch(`${process.env.SELF_BASE_URL || `http://localhost:${PORT}`}/api/orders`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payloadWithPayment)
+    })
+
+    const body = await fetchRes.json().catch(() => null)
+    if (!fetchRes.ok) {
+      return res.status(fetchRes.status).json({ error: body?.error || 'Failed to create order after payment verification' })
+    }
+
+    return res.status(201).json(body)
+  } catch (err) {
+    console.error('Payment verify error:', err)
+    return res.status(500).json({ error: err.message })
+  }
+})
+
 function isMissingSchemaCacheColumnError(err, columnName, tableName) {
   const message = `${err?.message || ''} ${err?.details || ''}`.toLowerCase()
   const columnLower = String(columnName || '').toLowerCase()

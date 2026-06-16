@@ -6,5 +6,5 @@ DEBUG: process.env.SUPABASE_URL = https://kpnvvrmvwfztkfxdsrrb.supabase.co
 DEBUG: process.cwd() = /Users/ashirwadk/Project/pepsico/backend
 Razorpay running in mock mode. No live requests will be sent.
 Server running on port 5001
-(node:4726) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(node:38742) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
 (Use `node --trace-warnings ...` to show where the warning was created)

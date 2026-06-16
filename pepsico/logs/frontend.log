@@ -3,10 +3,7 @@
 > vite
 
 
-  VITE v5.4.21  ready in 430 ms
+  VITE v5.4.21  ready in 133 ms
 
   ➜  Local:   http://localhost:5173/
   ➜  Network: use --host to expose
-12:04:41 PM [vite] hmr update /src/pages/AdminDashboard.jsx
-12:04:43 PM [vite] hmr update /src/pages/AdminDashboard.jsx
-12:05:34 PM [vite] hmr update /src/pages/AdminDashboard.jsx
