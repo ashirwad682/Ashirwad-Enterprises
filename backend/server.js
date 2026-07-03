@@ -313,7 +313,12 @@ export const supabase = createClient(
 app.use(express.json({ limit: '50mb' })) // Increased limit for base64 images
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use('/uploads', express.static('uploads'));
-app.use(express.static(path.join(path.dirname(new URL(import.meta.url).pathname), '../frontend/dist')));
+
+// Serve frontend static files
+const frontendDistPath = path.resolve(process.cwd(), 'frontend/dist');
+console.log(`Serving frontend from: ${frontendDistPath}`);
+app.use(express.static(frontendDistPath));
+
 app.use(express.urlencoded({ limit: '50mb', extended: true }))
 
 // Manager authentication and permission middleware
@@ -9555,7 +9560,7 @@ if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
 
   // SPA catch-all route - serve index.html for all non-API routes
   app.get('*', (req, res) => {
-    const indexPath = path.join(path.dirname(new URL(import.meta.url).pathname), '../frontend/dist/index.html')
+    const indexPath = path.resolve(process.cwd(), 'frontend/dist/index.html')
     res.sendFile(indexPath, (err) => {
       if (err) {
         console.error('Error serving index.html:', err)
