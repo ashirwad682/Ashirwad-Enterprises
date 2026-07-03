@@ -1,0 +1,31 @@
+{
+  "name": "pepsico-frontend",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.7",
+    "@tanstack/react-query": "^5.68.0",
+    "@vladmandic/face-api": "^1.7.15",
+    "axios": "^1.6.0",
+    "color-thief-browser": "^2.0.2",
+    "face-api.js": "^0.22.2",
+    "framer-motion": "^11.18.2",
+    "jspdf": "^2.5.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-easy-crop": "^5.5.6",
+    "react-hot-toast": "^2.5.1",
+    "react-router-dom": "^6.22.0",
+    "react-window": "^1.8.11"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^5.1.1",
+    "vite": "^5.0.0"
+  }
+}

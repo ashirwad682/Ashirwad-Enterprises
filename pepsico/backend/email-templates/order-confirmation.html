@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Confirmation - Ashirwad Enterprises</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: linear-gradient(135deg, #1e3a8a, #3b82f6, #6366f1);
+      background-size: 300% 300%;
+      animation: gradientBG 12s ease infinite;
+    }
+
+    .wrapper {
+      max-width: 550px;
+      margin: 40px auto;
+      background: #ffffff;
+      padding: 0;
+      border-radius: 24px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    .header-banner {
+      background: #0f172a;
+      padding: 40px 30px;
+      text-align: center;
+      color: #ffffff;
+    }
+
+    .header-banner h1 {
+      margin: 0;
+      font-size: 24px;
+      letter-spacing: 1px;
+    }
+
+    .content {
+      padding: 35px 30px;
+      text-align: left;
+    }
+
+    .divider {
+      width: 50px;
+      height: 4px;
+      background: linear-gradient(90deg, #3b82f6, #6366f1);
+      margin: 15px 0 25px 0;
+      border-radius: 4px;
+    }
+
+    .order-summary-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 25px;
+    }
+
+    .order-id-badge {
+      display: inline-block;
+      background: #dbeafe;
+      color: #1e40af;
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-family: monospace;
+      font-weight: 700;
+      font-size: 16px;
+      margin-top: 5px;
+    }
+
+    .item-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+
+    .item-row {
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .item-name {
+      padding: 12px 0;
+      font-size: 14px;
+      color: #1e293b;
+      font-weight: 600;
+    }
+
+    .item-price {
+      text-align: right;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .total-section {
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 2px solid #3b82f6;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .cta-button {
+      display: block;
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: #ffffff !important;
+      text-decoration: none;
+      padding: 16px;
+      border-radius: 12px;
+      text-align: center;
+      font-weight: 700;
+      margin: 25px 0;
+      box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2);
+    }
+
+    .info-alert {
+      background: #fffbeb;
+      border-left: 4px solid #f59e0b;
+      padding: 15px;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #92400e;
+    }
+
+    .footer {
+      background: #f1f5f9;
+      padding: 25px;
+      text-align: center;
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="header-banner">
+      <h1>ORDER CONFIRMED</h1>
+      <p style="font-size: 14px; opacity: 0.8; margin-top: 5px;">Thank you for shopping with us!</p>
+    </div>
+
+    <div class="content">
+      <p style="font-size: 18px; font-weight: 700; color: #0f172a; margin: 0;">Hi {{userName}},</p>
+      <div class="divider"></div>
+      <p style="color: #4b5563; font-size: 15px;">Your order has been received and is currently being prepared for dispatch.</p>
+
+      <div class="order-summary-card">
+        <span style="font-size: 12px; text-transform: uppercase; color: #64748b; font-weight: 700;">Order ID</span><br>
+        <div class="order-id-badge">{{orderId}}</div>
+        
+        <div style="margin-top: 15px; display: flex; justify-content: space-between; font-size: 13px; color: #475569;">
+          <span><strong>Date:</strong> {{orderDate}}</span>
+          <span><strong>Payment:</strong> {{paymentMethod}}</span>
+        </div>
+      </div>
+
+      <h3 style="font-size: 16px; color: #0f172a; margin-bottom: 10px;">Items Ordered</h3>
+      <table class="item-table">
+        {{#each items}}
+        <tr class="item-row">
+          <td class="item-name">
+            {{this.name}}<br>
+            <span style="font-size: 12px; font-weight: 400; color: #64748b;">Qty: {{this.quantity}}</span>
+          </td>
+          <td class="item-price">₹{{this.total}}</td>
+        </tr>
+        {{/each}}
+      </table>
+
+      <div class="total-section">
+        <span style="font-weight: 700; color: #64748b;">TOTAL AMOUNT</span>
+        <span style="font-size: 22px; font-weight: 800; color: #3b82f6;">₹{{totalAmount}}</span>
+      </div>
+
+      <a href="{{trackingUrl}}" class="cta-button">Track Order Status</a>
+
+      <div class="info-alert">
+        <strong>💡 Next Steps:</strong> We will send you another update as soon as your items are handed over to our delivery partner.
+      </div>
+    </div>
+
+    <div class="footer">
+      <strong>ASHIRWAD ENTERPRISES</strong><br>
+      For support, contact <a href="mailto:{{supportEmail}}" style="color: #3b82f6; text-decoration: none;">{{supportEmail}}</a>
+      <br><br>
+      © 2026 | All Rights Reserved
+    </div>
+  </div>
+</body>
+</html>

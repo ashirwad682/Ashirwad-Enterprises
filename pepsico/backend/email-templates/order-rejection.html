@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Rejection Notice</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: linear-gradient(135deg, #be123c, #4c0519, #1e293b);
+      background-size: 300% 300%;
+      animation: gradientBG 10s ease infinite;
+    }
+
+    .wrapper {
+      max-width: 520px;
+      margin: 50px auto;
+      background: #ffffff;
+      border-radius: 24px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+      overflow: hidden;
+      animation: fadeIn 0.8s ease-out;
+      text-align: center;
+    }
+
+    .status-header {
+      background: #fff1f2;
+      padding: 20px;
+      color: #be123c;
+      font-weight: 800;
+      font-size: 13px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      border-bottom: 1px solid #ffe4e6;
+    }
+
+    .content {
+      padding: 40px 30px;
+    }
+
+    h2 {
+      color: #1e293b;
+      margin: 0 0 10px 0;
+      font-size: 24px;
+    }
+
+    .divider {
+      width: 50px;
+      height: 4px;
+      background: linear-gradient(90deg, #be123c, #fb7185);
+      margin: 15px auto 25px auto;
+      border-radius: 4px;
+    }
+
+    .order-info {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 25px;
+      text-align: left;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    .info-label { color: #64748b; }
+    .info-value { color: #1e293b; font-weight: 600; font-family: monospace; }
+
+    .reason-card {
+      background: #fff7ed;
+      border-left: 4px solid #f59e0b;
+      padding: 20px;
+      border-radius: 12px;
+      text-align: left;
+      margin-bottom: 30px;
+    }
+
+    .reason-title {
+      color: #9a3412;
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 5px;
+      display: flex;
+      align-items: center;
+    }
+
+    .next-steps {
+      text-align: left;
+      background: #f0fdf4;
+      padding: 20px;
+      border-radius: 16px;
+      margin-bottom: 30px;
+    }
+
+    .next-steps h4 {
+      margin: 0 0 10px 0;
+      color: #166534;
+      font-size: 15px;
+    }
+
+    .next-steps ul {
+      margin: 0;
+      padding-left: 20px;
+      color: #15803d;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .cta-button {
+      display: inline-block;
+      background: #1e293b;
+      color: #ffffff !important;
+      text-decoration: none;
+      padding: 14px 28px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 14px;
+      transition: transform 0.2s;
+    }
+
+    .footer {
+      background: #f1f5f9;
+      padding: 25px;
+      font-size: 12px;
+      color: #94a3b8;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="status-header">Order Cancellation</div>
+    
+    <div class="content">
+      <h2>Hi {{userName}},</h2>
+      <div class="divider"></div>
+      <p style="color: #4b5563; font-size: 15px; margin-bottom: 25px;">
+        We regret to inform you that your order could not be processed and has been cancelled.
+      </p>
+
+      <div class="order-info">
+        <div class="info-row">
+          <span class="info-label">Order ID:</span>
+          <span class="info-value">{{orderId}}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Date:</span>
+          <span class="info-value">{{orderDate}}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Total Amount:</span>
+          <span class="info-value">₹{{totalAmount}}</span>
+        </div>
+      </div>
+
+      <div class="reason-card">
+        <div class="reason-title">⚠️ Reason for Cancellation</div>
+        <p style="margin: 0; color: #7c2d12; font-size: 14px; line-height: 1.5;">
+          {{rejectionReason}}
+        </p>
+      </div>
+
+      <div class="next-steps">
+        <h4>What Happens Next?</h4>
+        <ul>
+          <li>Any payments made will be refunded within 5-7 business days.</li>
+          <li>You can attempt to place a new order via your dashboard.</li>
+          <li>Our support team is available if you need further clarification.</li>
+        </ul>
+      </div>
+
+      <a href="{{dashboardUrl}}" class="cta-button">Return to Dashboard</a>
+    </div>
+
+    <div class="footer">
+      <strong>ASHIRWAD ENTERPRISES</strong><br>
+      Support: <a href="mailto:{{supportEmail}}" style="color: #64748b;">{{supportEmail}}</a><br>
+      © 2026 | Automated Notification
+    </div>
+  </div>
+</body>
+</html>

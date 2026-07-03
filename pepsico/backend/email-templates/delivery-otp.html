@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Delivery Confirmation OTP</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: linear-gradient(135deg, #f59e0b, #d97706, #1e293b);
+    background-size: 300% 300%;
+    animation: gradientBG 12s ease infinite;
+  }
+
+  .wrapper {
+    max-width: 500px;
+    margin: 50px auto;
+    background: #ffffff;
+    padding: 35px 30px;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    text-align: center;
+    animation: fadeIn 0.8s ease-out;
+  }
+
+  h1 {
+    font-size: 22px;
+    color: #1e293b;
+    margin-bottom: 5px;
+  }
+
+  .divider {
+    width: 50px;
+    height: 4px;
+    background: linear-gradient(90deg, #f59e0b, #1e293b);
+    margin: 15px auto 25px auto;
+    border-radius: 4px;
+  }
+
+  p {
+    color: #4b5563;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .otp-container {
+    background: #0f172a;
+    color: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    margin: 25px 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .otp-code {
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: 10px;
+    margin: 0;
+    color: #fbbf24;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  }
+
+  .otp-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #94a3b8;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .summary-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 18px;
+    border-radius: 12px;
+    text-align: left;
+    margin: 20px 0;
+  }
+
+  .summary-item {
+    font-size: 13px;
+    margin: 4px 0;
+    color: #334155;
+  }
+
+  .footer {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #f1f5f9;
+    font-size: 12px;
+    color: #94a3b8;
+  }
+
+  .footer a {
+    color: #d97706;
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  @keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+
+<body>
+  <div class="wrapper">
+    <h1>Delivery Verification</h1>
+    <div class="divider"></div>
+
+    <p>Hello <strong>{{customerName}}</strong>,</p>
+    <p>Your PepsiCo order is arriving! Share this code with our delivery partner only after you have received your products.</p>
+
+    <div class="otp-container">
+      <span class="otp-label">Confirmation Code</span>
+      <div class="otp-code">{{otp}}</div>
+    </div>
+
+    <div class="summary-card">
+      <div class="summary-item"><strong>Order:</strong> {{orderReference}}</div>
+      <div class="summary-item"><strong>Partner:</strong> {{partnerName}}</div>
+      <div class="summary-item"><strong>Valid Until:</strong> {{expiresAt}}</div>
+    </div>
+
+    <p style="font-size: 13px;">
+      Need help? Reach out to <a href="mailto:{{supportEmail}}" style="color: #d97706; text-decoration: none;">Support</a>.
+    </p>
+
+    <div class="footer">
+      Sent with care by <strong>Ashirwad Enterprises</strong><br>
+      © 2026 Support: {{supportEmail}}
+      {{#if supportPhone}} | {{supportPhone}} {{/if}}
+    </div>
+  </div>
+</body>
+</html>

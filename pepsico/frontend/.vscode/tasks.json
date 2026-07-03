@@ -1,0 +1,27 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Run frontend tests",
+			"type": "shell",
+			"command": "npm test",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [
+				"$jest"
+			],
+			"group": "test"
+		},
+		{
+			"label": "Build frontend for Google Sign-In test",
+			"type": "shell",
+			"command": "npm run build",
+			"args": [],
+			"isBackground": false,
+			"problemMatcher": [
+				"$vite"
+			],
+			"group": "build"
+		}
+	]
+}

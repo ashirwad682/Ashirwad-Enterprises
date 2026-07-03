@@ -1,0 +1,3 @@
+ALLOW_COMMITS=1
+# Allow commits in submodule (user approved)
+# Date: 2026-05-30

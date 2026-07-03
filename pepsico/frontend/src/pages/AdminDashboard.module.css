@@ -1,0 +1,682 @@
+:root {}
+
+.dashboardShell {
+  display: flex;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #232946 0%, #1a1a2e 100%);
+  color: #f3f4f6;
+}
+
+.sidebar {
+  width: 248px;
+  background: linear-gradient(180deg, #181c2f 0%, #232946 100%);
+  color: #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 20px;
+  gap: 24px;
+}
+
+.sidebarHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sidebarBrandText {
+  font-weight: 800;
+  font-size: 20px;
+  letter-spacing: 0.8px;
+  color: #ffb400;
+}
+
+.navSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.navButton {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: transparent;
+  color: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.navButton:hover {
+  background: rgba(226, 232, 240, 0.12);
+}
+
+.navButtonActive {
+  background: #232946;
+  color: #ffb400;
+  box-shadow: 0 10px 24px rgba(8, 47, 73, 0.35);
+}
+
+.navShortcut {
+  margin-top: auto;
+  padding: 16px;
+  border-radius: 16px;
+  background: rgba(226, 232, 240, 0.12);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.navShortcut strong {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.mainColumn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.topbar {
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  backdrop-filter: blur(20px);
+  background: rgba(255, 255, 255, 0.85);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.24);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.topbarInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.topbarSubtitle {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.userProfile {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2563eb, #06b6d4);
+  color: #fff;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logoutButton {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 20px;
+  font-weight: 700;
+  cursor: pointer;
+  background: linear-gradient(135deg, #ef4444, #b91c1c);
+  color: #fff;
+  transition: transform 0.1s ease;
+}
+
+.logoutButton:hover {
+  transform: translateY(-1px);
+}
+
+.dashboardContent {
+  flex: 1;
+  padding: 32px 32px 48px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.statsGrid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.statCard {
+  border-radius: 20px;
+  padding: 20px;
+  background: #fff;
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12);
+  border: 1px solid rgba(226, 232, 240, 0.6);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.statLabel {
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #94a3b8;
+  font-weight: 700;
+}
+
+.statValue {
+  font-size: 32px;
+  font-weight: 800;
+}
+
+.tabBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.tabButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  background: #fff;
+  color: #1f2937;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tabButtonActive {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 12px 30px rgba(37, 99, 235, 0.35);
+}
+
+.tabSummary {
+  font-size: 14px;
+  color: #64748b;
+}
+
+.panel {
+  background: #fff;
+  border-radius: 24px;
+  border: 1px solid rgba(226, 232, 240, 0.7);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.14);
+  padding: 24px;
+}
+
+.panelBody {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.panelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.panelTitle {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.sessionCountdown {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(37, 99, 235, 0.12);
+  color: #1d4ed8;
+}
+
+.sessionDanger {
+  background: rgba(239, 68, 68, 0.14);
+  color: #b91c1c;
+}
+
+.orderCard {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  height: calc(100% - 12px);
+  background: #fff;
+  border-radius: 20px;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+  padding: 20px;
+}
+
+.orderHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.orderInfo {
+  display: grid;
+  gap: 6px;
+}
+
+.orderId {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.orderMeta {
+  font-size: 13px;
+  color: #475569;
+}
+
+.orderAmount {
+  font-size: 24px;
+  font-weight: 800;
+  color: #0b5fff;
+}
+
+.statusPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 12px;
+  background: rgba(37, 99, 235, 0.12);
+  color: #1d4ed8;
+}
+
+.orderTimeline {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.timelineStep {
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  font-size: 11px;
+  font-weight: 700;
+  color: #475569;
+}
+
+.timelineStepActive {
+  border-color: #2563eb;
+  color: #1d4ed8;
+  background: rgba(37, 99, 235, 0.12);
+}
+
+.timelineStepComplete {
+  border-color: #16a34a;
+  color: #047857;
+  background: rgba(16, 185, 129, 0.12);
+}
+
+.orderItems {
+  border: 1px dashed rgba(148, 163, 184, 0.5);
+  border-radius: 14px;
+  padding: 16px;
+  display: grid;
+  gap: 6px;
+  background: #f8fafc;
+}
+
+.itemsTitle {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #94a3b8;
+  letter-spacing: 1.2px;
+}
+
+.orderActions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.buttonPrimary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.15s ease;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(34, 197, 94, 0.35);
+}
+
+.buttonPrimary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.buttonWarning {
+  background: linear-gradient(135deg, #f97316, #ef4444);
+  box-shadow: 0 10px 24px rgba(239, 68, 68, 0.3);
+}
+
+.buttonSecondary {
+  background: linear-gradient(135deg, #0ea5e9, #2563eb);
+  box-shadow: 0 10px 24px rgba(14, 165, 233, 0.32);
+}
+
+.orderAssignRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.select,
+.input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  font-size: 14px;
+  background: #fff;
+  color: inherit;
+}
+
+.input:focus,
+.select:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+}
+
+.orderNotice {
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px dashed rgba(148, 163, 184, 0.5);
+  background: #f8fafc;
+  font-size: 13px;
+  color: #475569;
+}
+
+.ordersStack {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.orderEmptyState {
+  padding: 60px 20px;
+  text-align: center;
+  color: #94a3b8;
+  border: 2px dashed rgba(148, 163, 184, 0.4);
+  border-radius: 18px;
+  background: #f8fafc;
+  font-weight: 600;
+}
+
+.confirmOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(6px);
+}
+
+.confirmDialog {
+  width: min(420px, 92vw);
+  background: #fff;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.24);
+  display: grid;
+  gap: 16px;
+}
+
+.confirmDialog h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.confirmDetails {
+  background: #f8fafc;
+  border-radius: 14px;
+  padding: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  font-size: 13px;
+  color: #475569;
+}
+
+.confirmActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.buttonGhost {
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  background: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.buttonDanger {
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(135deg, #ef4444, #b91c1c);
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.filtersRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.tableWrapper {
+  border-radius: 16px;
+  border: 1px solid rgba(226, 232, 240, 0.7);
+  overflow: hidden;
+  position: relative;
+}
+
+.tableHeaderRow,
+.tableRow {
+  display: grid;
+  grid-template-columns: 140px 1fr 110px 120px 120px 180px;
+  align-items: center;
+  padding: 12px 16px;
+  font-size: 13px;
+}
+
+.tableHeaderRow {
+  background: #f1f5f9;
+  font-weight: 700;
+  color: #334155;
+}
+
+.tableRow {
+  border-bottom: 1px solid rgba(226, 232, 240, 0.7);
+  background: #fff;
+}
+
+.tableRow:nth-child(even) {
+  background: #f8fafc;
+}
+
+.tableCellRight {
+  text-align: right;
+  font-weight: 700;
+  color: #0b5fff;
+}
+
+.badge {
+  padding: 4px 10px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 11px;
+}
+
+.badgeActive {
+  background: rgba(34, 197, 94, 0.18);
+  color: #047857;
+}
+
+.badgeInactive {
+  background: rgba(148, 163, 184, 0.2);
+  color: #475569;
+}
+
+.skeletonLine {
+  height: 14px;
+  border-radius: 999px;
+}
+
+.skeletonTall {
+  height: 64px;
+}
+
+.toastLink {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.couponForm {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  align-items: center;
+}
+
+.checkboxLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #475569;
+}
+
+.couponGrid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.couponCard {
+  background: #fff;
+  border-radius: 18px;
+  border: 1px solid rgba(226, 232, 240, 0.7);
+  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.08);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.couponHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.couponCode {
+  font-weight: 800;
+  font-size: 18px;
+  letter-spacing: 1px;
+}
+
+.couponBody {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+  color: #475569;
+}
+
+.couponActions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.transactionsBlur .tableHeaderRow,
+.transactionsBlur .tableRow {
+  filter: blur(6px);
+  pointer-events: none;
+}
+
+.transactionsBlurOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+  color: #fff;
+  font-weight: 600;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(3px);
+}
+
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(90deg, #e2e8f0 25%, #f8fafc 37%, #e2e8f0 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+  border-radius: 12px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+@media (max-width: 1080px) {
+  .sidebar {
+    display: none;
+  }
+  .dashboardShell {
+    flex-direction: column;
+  }
+  .topbar {
+    position: static;
+  }
+  .dashboardContent {
+    padding: 24px 20px 36px;
+  }
+}
