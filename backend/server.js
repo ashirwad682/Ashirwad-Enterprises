@@ -18,9 +18,6 @@ import { calculateSlabDiscountAmount, formatSlabRuleText, resolveApplicableSlab 
 // Place this after 'const app = express();'
 
 
-// DEBUG: Log env and cwd
-console.log('DEBUG: process.env.SUPABASE_URL =', process.env.SUPABASE_URL);
-console.log('DEBUG: process.cwd() =', process.cwd());
 import express from 'express';
 import cron from 'node-cron';
 import bcrypt from 'bcryptjs';
@@ -8675,7 +8672,7 @@ app.get('/api/orders/:id/bill', async (req, res) => {
   }
 })
 
-if (process.env.NODE_ENV !== 'test') {
+if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
   // Schedule daily report generation at 06:00 local time
   try {
     const reportsDir = path.join(baseDir, 'reports')

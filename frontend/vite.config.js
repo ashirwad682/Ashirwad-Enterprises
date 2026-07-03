@@ -16,6 +16,24 @@ export default defineConfig(({ mode }) => {
           secure: false
         }
       }
+    },
+    build: {
+      // Increase chunk size warning threshold (face-api.js models are large)
+      chunkSizeWarningLimit: 2000,
+      // Disable sourcemaps in production for faster builds and smaller deploys
+      sourcemap: false,
+      rollupOptions: {
+        output: {
+          // Manual chunk splitting to keep individual bundle sizes reasonable
+          manualChunks: {
+            'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+            'ui-vendor': ['framer-motion', 'react-hot-toast'],
+            'supabase': ['@supabase/supabase-js'],
+            'pdf': ['jspdf'],
+            'face-api': ['@vladmandic/face-api', 'face-api.js']
+          }
+        }
+      }
     }
   }
 })

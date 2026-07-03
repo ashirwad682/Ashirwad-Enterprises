@@ -3,16 +3,26 @@ node_modules/
 .pnp
 .pnp.js
 
-# Environment files (secrets)
+# Environment files (secrets — never commit)
 .env
 .env.local
 .env.*.local
 backend/.env
+frontend/.env.development
+
+# Allow these safe non-secret env files:
+!.env.example
+!backend/.env.example
+!frontend/.env.production
 
 # Build output
 dist/
 frontend/dist/
 build/
+
+# Vite internal cache
+frontend/.vite/
+
 
 # Uploaded user files
 uploads/

@@ -1,20 +1,19 @@
 {
   "name": "ashirwad-enterprises-backend",
   "version": "1.0.0",
-  "description": "Backend for Vercel deployment.",
+  "description": "Full-stack PepsiCo Distributor Platform — Express API + React frontend",
   "main": "index.js",
   "type": "module",
   "engines": {
     "node": "20.x"
   },
   "scripts": {
-    "install-frontend": "cd frontend && npm install",
-    "build": "npm run install-frontend && cd frontend && npm run build && cd .. && rm -rf dist && cp -r frontend/dist dist"
+    "build": "cd frontend && npm install && npm run build && cd .. && rm -rf dist && cp -r frontend/dist dist",
+    "install-all": "npm install && cd backend && npm install && cd ../frontend && npm install"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.7",
     "axios": "^1.13.5",
-    "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.1",
