@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Early Delivery Confirmation</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: linear-gradient(135deg, #0d9488, #2dd4bf, #6366f1);
+    background-size: 300% 300%;
+    animation: gradientBG 10s ease infinite;
+  }
+
+  .wrapper {
+    max-width: 500px;
+    margin: 50px auto;
+    background: #ffffff;
+    padding: 40px 30px;
+    border-radius: 24px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    text-align: center;
+    animation: fadeIn 0.8s ease-out;
+  }
+
+  .icon-circle {
+    width: 60px;
+    height: 60px;
+    background: #f0fdfa;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    color: #0d9488;
+    font-size: 30px;
+  }
+
+  h1 {
+    font-size: 24px;
+    color: #111827;
+    margin: 0 0 8px 0;
+  }
+
+  .divider {
+    width: 60px;
+    height: 4px;
+    background: linear-gradient(90deg, #0d9488, #6366f1);
+    margin: 15px auto 25px auto;
+    border-radius: 10px;
+  }
+
+  p {
+    color: #4b5563;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .delivery-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 20px;
+    margin: 25px 0;
+    text-align: left;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .delivery-card::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 6px;
+    background: #0d9488;
+  }
+
+  .time-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 14px;
+  }
+
+  .time-row:last-child {
+    margin-bottom: 0;
+    padding-top: 10px;
+    border-top: 1px dashed #cbd5e1;
+  }
+
+  .label { color: #64748b; }
+  .value { color: #1e293b; font-weight: 600; }
+  .highlight-value { color: #0d9488; font-weight: 700; }
+
+  .footer {
+    margin-top: 35px;
+    padding-top: 20px;
+    border-top: 1px solid #f1f5f9;
+    font-size: 12px;
+    color: #94a3b8;
+  }
+
+  @keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+
+<body>
+  <div class="wrapper">
+    <div class="icon-circle">⚡</div>
+    <h1>Early Arrival!</h1>
+    <div class="divider"></div>
+
+    <p>Hello <strong>{{customerName}}</strong>,</p>
+    <p>Surprise! Your order <strong>#{{orderReference}}</strong> was delivered ahead of schedule. We hope this jumpstarts your day!</p>
+
+    <div class="delivery-card">
+      <div class="time-row">
+        <span class="label">Original Estimate:</span>
+        <span class="value">{{expectedBy}}</span>
+      </div>
+      <div class="time-row">
+        <span class="label">Actual Delivery:</span>
+        <span class="highlight-value">Today at {{deliveredAt}}</span>
+      </div>
+    </div>
+
+    <p style="font-size: 14px;">
+      Thank you for trusting <strong>Ashirwad Enterprises</strong>.
+    </p>
+
+    <div class="footer">
+      This is an automated confirmation.<br>
+      Need assistance? Contact <a href="mailto:{{supportEmail}}" style="color: #0d9488; text-decoration: none;">{{supportEmail}}</a>
+      <br><br>
+      © 2026 Ashirwad Enterprises
+    </div>
+  </div>
+</body>
+</html>

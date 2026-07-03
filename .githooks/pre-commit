@@ -1,0 +1,13 @@
+#!/bin/sh
+# Local guard: prevent accidental commits unless explicitly allowed.
+# To allow commits temporarily, set environment variable `ALLOW_COMMITS=1`.
+if [ "$ALLOW_COMMITS" = "1" ]; then
+  exit 0
+fi
+# Also allow if a repository-level .allow_commits file exists (manual opt-in).
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo "")
+if [ -n "$REPO_ROOT" ] && [ -f "$REPO_ROOT/.allow_commits" ]; then
+  exit 0
+fi
+echo "ERROR: Commits are blocked by local policy. Set ALLOW_COMMITS=1 or create .allow_commits to override."
+exit 1

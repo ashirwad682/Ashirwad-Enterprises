@@ -1,0 +1,49 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Environment files (secrets)
+.env
+.env.local
+.env.*.local
+backend/.env
+
+# Build output
+dist/
+frontend/dist/
+build/
+
+# Uploaded user files
+uploads/
+reports/
+
+# Logs
+logs/
+*.log
+*.pid
+migrate-uploads-apply.log
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSFiles
+.Spotlight-V100
+.Trashes
+
+# Temporary / scratch files
+scratch_*.js
+scratch_*.cjs
+test_*.js
+debug_*.js
+
+# Lock files (keep package-lock, ignore yarn)
+yarn.lock
+
+# Supabase local dev
+supabase/.temp/
+
+# One-off migration helpers at root (keep only database/ dir)
+EXECUTE_THIS_MIGRATION.sql
+MIGRATION_CLEAN.sql
+RUN_THIS_MIGRATION.sql

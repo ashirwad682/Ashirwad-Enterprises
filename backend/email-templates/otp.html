@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verify Your Email</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: linear-gradient(135deg, #f59e0b, #ea580c, #1e293b);
+      background-size: 300% 300%;
+      animation: gradientBG 10s ease infinite;
+    }
+
+    .wrapper {
+      max-width: 480px;
+      margin: 60px auto;
+      background: #ffffff;
+      padding: 0;
+      border-radius: 24px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      overflow: hidden;
+      text-align: center;
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    .header-accent {
+      height: 6px;
+      background: linear-gradient(90deg, #f59e0b, #3b82f6);
+    }
+
+    .content {
+      padding: 45px 35px;
+    }
+
+    .lock-icon {
+      background: #fff7ed;
+      width: 60px;
+      height: 60px;
+      line-height: 60px;
+      border-radius: 50%;
+      display: inline-block;
+      font-size: 28px;
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      color: #1e293b;
+      margin: 0;
+      font-size: 24px;
+      letter-spacing: -0.5px;
+    }
+
+    .divider {
+      width: 40px;
+      height: 4px;
+      background: #f59e0b;
+      margin: 15px auto 25px auto;
+      border-radius: 10px;
+    }
+
+    p {
+      color: #64748b;
+      font-size: 15px;
+      line-height: 1.6;
+      margin-bottom: 30px;
+    }
+
+    .otp-container {
+      background: #0f172a;
+      padding: 30px 20px;
+      border-radius: 16px;
+      margin-bottom: 25px;
+      position: relative;
+    }
+
+    .otp-label {
+      display: block;
+      color: #94a3b8;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+
+    .otp-code {
+      font-size: 36px;
+      font-weight: 800;
+      letter-spacing: 12px;
+      color: #fbbf24;
+      font-family: 'Courier New', monospace;
+      margin: 0;
+      padding-left: 12px; /* Centers the letter spacing */
+    }
+
+    .expiry-badge {
+      display: inline-block;
+      background: #fef2f2;
+      color: #ef4444;
+      padding: 6px 14px;
+      border-radius: 50px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .footer {
+      background: #f8fafc;
+      padding: 25px;
+      font-size: 12px;
+      color: #94a3b8;
+      border-top: 1px solid #f1f5f9;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrapper">
+    <div class="header-accent"></div>
+    
+    <div class="content">
+      <div class="lock-icon">🔐</div>
+      <h2>Verify Your Email</h2>
+      <div class="divider"></div>
+      
+      <p>
+        Welcome to <strong>Ashirwad Enterprises</strong>. To finalize your account setup, please use the secure verification code below:
+      </p>
+
+      <div class="otp-container">
+        <span class="otp-label">Verification Code</span>
+        <div class="otp-code">{{otp}}</div>
+      </div>
+
+      <div class="expiry-badge">⏱ Expires in 10 minutes</div>
+      
+      <p style="font-size: 13px; margin-top: 15px; color: #94a3b8;">
+        If you did not request this code, please ignore this email or contact support if you have concerns.
+      </p>
+    </div>
+
+    <div class="footer">
+      <strong>ASHIRWAD ENTERPRISES</strong><br>
+      PepsiCo Distribution Partner<br>
+      © 2026 | Secure Automated Notification
+    </div>
+  </div>
+</body>
+</html>

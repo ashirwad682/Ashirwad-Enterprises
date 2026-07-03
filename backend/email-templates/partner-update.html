@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+
+body{
+    margin:0;
+    padding:25px;
+    font-family:'Segoe UI',sans-serif;
+    background:linear-gradient(
+        135deg,
+        #1e3a8a 0%,
+        #3b82f6 50%,
+        #6366f1 100%
+    );
+}
+
+.wrapper{
+    max-width:580px;
+    margin:auto;
+    background:#ffffff;
+    border-radius:24px;
+    overflow:hidden;
+    box-shadow:
+    0 25px 50px rgba(15,23,42,.18);
+}
+
+.header{
+    background:#0f172a;
+    color:#ffffff;
+    text-align:center;
+    padding:38px 30px;
+}
+
+.header h1{
+    margin:0;
+    font-size:28px;
+    font-weight:700;
+    letter-spacing:.5px;
+}
+
+.header p{
+    margin-top:10px;
+    font-size:14px;
+    opacity:.85;
+    line-height:1.5;
+}
+
+.content{
+    padding:35px;
+}
+
+.greeting{
+    font-size:20px;
+    font-weight:700;
+    color:#0f172a;
+}
+
+.description{
+    color:#64748b;
+    line-height:1.8;
+    font-size:15px;
+    margin-top:14px;
+    margin-bottom:28px;
+}
+
+.card{
+    background:#ffffff;
+    border:1px solid #e2e8f0;
+    border-radius:18px;
+    padding:22px;
+    margin-top:22px;
+    box-shadow:
+    0 4px 12px rgba(0,0,0,.03);
+}
+
+.card h4{
+    margin:0 0 18px;
+    color:#0f172a;
+    font-size:16px;
+    font-weight:700;
+    padding-bottom:12px;
+    border-bottom:1px solid #e5e7eb;
+}
+
+.change-block{
+    padding:14px 0;
+    border-top:1px solid #f1f5f9;
+}
+
+.change-block:first-of-type{
+    border-top:none;
+    padding-top:0;
+}
+
+.change-label{
+    font-size:12px;
+    font-weight:700;
+    color:#334155;
+    text-transform:uppercase;
+    margin-bottom:10px;
+    letter-spacing:.5px;
+}
+
+.change-wrapper{
+    display:flex;
+    align-items:center;
+    gap:14px;
+}
+
+.old-value,
+.new-value{
+    flex:1;
+    padding:14px;
+    border-radius:12px;
+    font-size:13px;
+    line-height:1.7;
+}
+
+.old-value{
+    background:#fef2f2;
+    border:1px solid #fecaca;
+    color:#991b1b;
+}
+
+.new-value{
+    background:#ecfdf5;
+    border:1px solid #bbf7d0;
+    color:#166534;
+}
+
+.arrow{
+    font-size:18px;
+    font-weight:700;
+    color:#64748b;
+}
+
+.detail-row{
+    display:flex;
+    justify-content:space-between;
+    gap:15px;
+    padding:14px 0;
+    border-top:1px solid #f1f5f9;
+    font-size:14px;
+}
+
+.detail-row:first-of-type{
+    border-top:none;
+    padding-top:0;
+}
+
+.detail-value{
+    text-align:right;
+    color:#0f172a;
+    font-weight:600;
+    word-break:break-word;
+}
+
+.status{
+    display:inline-block;
+    background:#dcfce7;
+    color:#166534;
+    padding:7px 14px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:700;
+    text-transform:capitalize;
+}
+
+.alert{
+    margin-top:28px;
+    background:#fffbeb;
+    border-left:4px solid #f59e0b;
+    padding:16px;
+    border-radius:12px;
+    font-size:13px;
+    color:#92400e;
+    line-height:1.7;
+}
+.alert2{
+    margin-top:28px;
+    background:#ecfdf5;
+    border-left:4px solid #10b981;
+    padding:16px;
+    border-radius:12px;
+    font-size:13px;
+    color:#065f46;
+    line-height:1.7;
+    box-shadow:0 2px 8px rgba(16,185,129,.08);
+}
+
+.footer{
+    background:#f8fafc;
+    padding:28px;
+    text-align:center;
+    font-size:12px;
+    color:#64748b;
+    line-height:1.8;
+    border-top:1px solid #e5e7eb;
+}
+
+.footer a{
+    color:#2563eb;
+    text-decoration:none;
+    font-weight:600;
+}
+
+@media (max-width:600px){
+
+.content{
+padding:25px;
+}
+
+.change-wrapper{
+flex-direction:column;
+}
+
+.arrow{
+transform:rotate(90deg);
+}
+
+.detail-row{
+flex-direction:column;
+gap:8px;
+}
+
+.detail-value{
+text-align:left;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="wrapper">
+
+<div class="header">
+<h1>Profile Updated</h1>
+<p>Your delivery partner account details were updated successfully</p>
+</div>
+
+<div class="content">
+
+<div class="greeting">
+Hello {{name}},
+</div>
+
+<p class="description">
+Your delivery partner profile has been updated by the admin team.
+Please review the change summary and your latest profile details.
+</p>
+
+<div class="card">
+
+<h4>What Changed</h4>
+
+{{#if changes}}
+{{#each changes}}
+
+<div class="change-block">
+
+<div class="change-label">
+{{@key}}
+</div>
+
+<div class="change-wrapper">
+
+<div class="old-value">
+<strong>Before:</strong><br>
+{{this.before}}
+</div>
+
+<div class="arrow">→</div>
+
+<div class="new-value">
+<strong>After:</strong><br>
+{{this.after}}
+</div>
+
+</div>
+
+</div>
+
+{{/each}}
+{{else}}
+
+<div class="change-block">
+<div class="old-value" style="background:#e0f2fe;color:#0c4a6e;">
+No field-level changes were detected.
+</div>
+</div>
+
+{{/if}}
+
+</div>
+
+
+<div class="card">
+
+<h4>Current Profile Details</h4>
+
+<div class="detail-row">
+<span><strong>Full Name</strong></span>
+<span class="detail-value">{{name}}</span>
+</div>
+
+<div class="detail-row">
+<span><strong>Email</strong></span>
+<span class="detail-value">{{email}}</span>
+</div>
+
+<div class="detail-row">
+<span><strong>Mobile</strong></span>
+<span class="detail-value">{{mobile}}</span>
+</div>
+
+<div class="detail-row">
+<span><strong>Assigned Area</strong></span>
+<span class="detail-value">{{assigned_area}}</span>
+</div>
+
+<div class="detail-row">
+<span><strong>Status</strong></span>
+<span class="status">{{status}}</span>
+</div>
+
+</div>
+
+
+<div class="alert">
+If any details are incorrect or you did not authorize these changes, please contact support immediately.
+</div>
+<div class="alert2">
+    <p>Thank you for being a valued delivery partner with Ashirwad Enterprises!</p>
+</div>
+
+</div>
+
+<div class="footer">
+
+<strong>ASHIRWAD ENTERPRISES</strong><br>
+
+For support contact:
+<a href="mailto:{{supportEmail}}">
+{{supportEmail}}
+</a>
+
+<br><br>
+
+© 2026 | All Rights Reserved
+
+</div>
+
+</div>
+</body>
+</html>
