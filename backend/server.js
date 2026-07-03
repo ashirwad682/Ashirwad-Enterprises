@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
 import { randomUUID, randomBytes, createHash } from 'crypto';
+import { fileURLToPath } from 'url';
 dotenv.config();
 import { createClient } from '@supabase/supabase-js';
 import cors from 'cors';
@@ -29,6 +30,10 @@ const app = express();
 const corsOptions = { origin: '*', methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'], allowedHeaders: ['Content-Type', 'Authorization', 'x-admin-key', 'x-admin-api-key', 'x-manager-token', 'x-warehouse-id', 'x-warehouse-auth', 'x-delivery-partner-id', 'x-admin-report-password'] };
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
+
+// Get __dirname for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 import multer from 'multer';
 
@@ -314,8 +319,8 @@ app.use(express.json({ limit: '50mb' })) // Increased limit for base64 images
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use('/uploads', express.static('uploads'));
 
-// Serve frontend static files
-const frontendDistPath = path.resolve(process.cwd(), 'frontend/dist');
+// Serve frontend static files - resolve path relative to this file
+const frontendDistPath = path.resolve(__dirname, '../frontend/dist');
 console.log(`Serving frontend from: ${frontendDistPath}`);
 app.use(express.static(frontendDistPath));
 
@@ -9559,7 +9564,7 @@ if (process.env.NODE_ENV !== 'test' && !isVercel) {
   })
 
   // SPA catch-all route - serve index.html for all non-API routes (only if frontend dist exists)
-  const frontendIndexPath = path.resolve(process.cwd(), 'frontend/dist/index.html')
+  const frontendIndexPath = path.resolve(__dirname, '../frontend/dist/index.html')
   if (fs.existsSync(frontendIndexPath)) {
     app.get('*', (req, res) => {
       res.sendFile(frontendIndexPath, (err) => {
