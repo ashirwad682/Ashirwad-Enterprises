@@ -8678,7 +8678,7 @@ app.get('/api/orders/:id/bill', async (req, res) => {
   }
 })
 
-if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
+if (process.env.NODE_ENV !== 'test' && !isVercel) {
   // Schedule daily report generation at 06:00 local time
   try {
     const reportsDir = path.join(baseDir, 'reports')
@@ -9558,16 +9558,23 @@ if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
     }
   })
 
-  // SPA catch-all route - serve index.html for all non-API routes
-  app.get('*', (req, res) => {
-    const indexPath = path.resolve(process.cwd(), 'frontend/dist/index.html')
-    res.sendFile(indexPath, (err) => {
-      if (err) {
-        console.error('Error serving index.html:', err)
-        res.status(404).json({ error: 'Page not found' })
-      }
+  // SPA catch-all route - serve index.html for all non-API routes (only if frontend dist exists)
+  const frontendIndexPath = path.resolve(process.cwd(), 'frontend/dist/index.html')
+  if (fs.existsSync(frontendIndexPath)) {
+    app.get('*', (req, res) => {
+      res.sendFile(frontendIndexPath, (err) => {
+        if (err) {
+          console.error('Error serving index.html:', err)
+          res.status(404).json({ error: 'Page not found' })
+        }
+      })
     })
-  })
+  } else {
+    console.warn('Frontend dist not found at:', frontendIndexPath)
+    app.get('*', (req, res) => {
+      res.status(200).json({ status: 'API running', message: 'Frontend not deployed' })
+    })
+  }
 
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
