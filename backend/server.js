@@ -313,6 +313,7 @@ export const supabase = createClient(
 app.use(express.json({ limit: '50mb' })) // Increased limit for base64 images
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use('/uploads', express.static('uploads'));
+app.use(express.static(path.join(path.dirname(new URL(import.meta.url).pathname), '../frontend/dist')));
 app.use(express.urlencoded({ limit: '50mb', extended: true }))
 
 // Manager authentication and permission middleware
@@ -9552,6 +9553,16 @@ if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
     }
   })
 
+  // SPA catch-all route - serve index.html for all non-API routes
+  app.get('*', (req, res) => {
+    const indexPath = path.join(path.dirname(new URL(import.meta.url).pathname), '../frontend/dist/index.html')
+    res.sendFile(indexPath, (err) => {
+      if (err) {
+        console.error('Error serving index.html:', err)
+        res.status(404).json({ error: 'Page not found' })
+      }
+    })
+  })
 
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)

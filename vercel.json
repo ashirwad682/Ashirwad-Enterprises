@@ -1,12 +1,12 @@
 {
   "version": 2,
-  "functions": {
-    "index.js": {
-      "memory": 1024,
-      "maxDuration": 60
+  "builds": [
+    {
+      "src": "index.js",
+      "use": "@vercel/node"
     }
-  },
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.js" }
-  ]
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
 }

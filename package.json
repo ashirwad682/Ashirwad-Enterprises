@@ -5,10 +5,12 @@
   "main": "index.js",
   "type": "module",
   "engines": {
-    "node": "20.x"
+    "node": "24.x"
   },
   "scripts": {
-    "build": "cd frontend && npm install && npm run build && cd .. && rm -rf dist && cp -r frontend/dist dist",
+    "build": "cd frontend && npm install && npm run build && cd ..",
+    "start": "node index.js",
+    "dev": "node index.js",
     "install-all": "npm install && cd backend && npm install && cd ../frontend && npm install"
   },
   "dependencies": {
